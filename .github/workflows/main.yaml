@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  test:
+  hw_01:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,6 +20,7 @@ jobs:
 
       - name: Install dependencies # install all dependencies
         run: |
+          cd homework_01
           poetry install --no-root
 
       - name: Run static analyzis
@@ -28,5 +29,5 @@ jobs:
 
       - name: Run pytest
         run: |
-          make install-dev
+          make dev
           make test
