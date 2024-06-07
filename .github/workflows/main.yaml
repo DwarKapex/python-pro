@@ -25,9 +25,11 @@ jobs:
 
       - name: Run static analyzis
         run: |
+          cd homewor_01
           make lint
 
       - name: Run pytest
         run: |
+          cd homework_01
           make dev
           make test
