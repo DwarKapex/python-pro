@@ -12,9 +12,24 @@ http://nginx.org/en/docs/http/ngx_http_log_module.html#log_format). Теперь
 Полное TЗ можно почитать [здесь](homework.pdf)
 
 # Запуск
+Рекомедутеся сначала создать виртаульную среду для работы:
+```bash
+$> python -m venv .venv
+$> source .venv/bin/activate
+```
+Это создаст вируальную среду в папке `.venv`.
+
+Активируйте срeду с помощью следующей команды:
+```bash
+$> source .venv/bin/activate
+```
+
+:
+
 # Pre-commit hooks
 Используются разные pre-commit hooks, чтобы держать код в согласии. Все крючки (hooks) описаны в файле
-`.pre-commit-config.yml`. Чтобы добавить их в свой локальный .git, сделай так:
+`.pre-commit-config.yml`. Чтобы добавить их в свой локальный .git, сделай так
+в корневой директории::
 ```bash
 $> pip install -e .[dev] # or $> pip install -e '.[dev]' for zsh
 $> pre-commit install
