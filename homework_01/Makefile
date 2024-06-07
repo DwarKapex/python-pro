@@ -20,3 +20,6 @@ install-dev:
 	. .venv/bin/activate; \
 	poetry install --no-root --only=dev; \
 	pre-commit install
+
+.PHONY: dev
+dev: install install-dev
