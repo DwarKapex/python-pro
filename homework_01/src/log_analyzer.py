@@ -15,9 +15,8 @@ import os
 import pathlib
 import re
 import shutil
-import sys
 from statistics import mean, median
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import structlog
 
@@ -67,7 +66,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def update_config(default_config: Dict, config_path: pathlib.Path):
+def update_config(default_config: Dict, config_path: pathlib.Path) -> Dict:
     """
     Update script config from file
     :param default_config: Default configuration
@@ -88,7 +87,7 @@ def update_config(default_config: Dict, config_path: pathlib.Path):
     return updated_config
 
 
-def get_log_file_and_date(log_dir: pathlib.Path):
+def get_log_file_and_date(log_dir: pathlib.Path) -> Tuple[pathlib.Path, str]:
     """
     Obtain log file path and date it was created
     :param log_dir: Path to folder with log files
@@ -97,11 +96,12 @@ def get_log_file_and_date(log_dir: pathlib.Path):
     log_starts_with = "nginx-access-ui.log-"
     parse_log_name = ""
     if not os.path.isdir(log_dir):
-        logger.error(f"Error to get access to log directory {str(log_dir)!r}")
-        sys.exit(1)
+        return (pathlib.Path("not_found"), "")
     for fname in os.listdir(log_dir):
         if fname.startswith(log_starts_with) and parse_log_name < fname:
             parse_log_name = fname
+    if not parse_log_name:
+        return (pathlib.Path("not_found"), "")
     logfile_path = log_dir / parse_log_name
     logger.info(f"Found log file {str(logfile_path)!r} for parsing")
     log_date = re.findall(r"\d+", parse_log_name)[0]
@@ -129,14 +129,16 @@ def parse_log_line(line: str = ""):
     return url, request_time
 
 
-def parse_logs(log_file: pathlib.Path):
+def parse_logs(log_file: os.PathLike[str]) -> Dict:
     """
     Main function for log parsing
     :param log_file: Path to log file to parse
     :return: Dictionary with URL as a key, and list of requested time as value for the key
     """
     # find the latest log file in log dir
-    if log_file.suffix == ".gz":
+    if not log_file:
+        return {}
+    if pathlib.Path(log_file).suffix == ".gz":
         with gzip.open(log_file, mode="rt") as f:
             logfile_content = f.readlines()
     else:
@@ -161,13 +163,15 @@ def parse_logs(log_file: pathlib.Path):
     return data
 
 
-def create_log_stats(log_data: Dict, report_size: int = 0):
+def create_log_stats(log_data: Dict, report_size: int = 0) -> List[Dict]:
     """
     Generate lag statistics to populate the outcome report
     :param log_data: Dictionary of parsed data
     :param report_size: The max number of requests to report about
     :return: Dictionary with log statistics
     """
+    if not log_data:
+        return []
     url_count = []
     total_time = 0
     total_count = 0
@@ -193,7 +197,7 @@ def create_log_stats(log_data: Dict, report_size: int = 0):
     return log_stats
 
 
-def generate_report(report_dir, log_date, log_stats: List[Dict]):
+def generate_report(report_dir, log_date, log_stats: List[Dict]) -> None:
     """
     Generate report from log stats
     :param report_dir: Path to folder to save the report to
@@ -201,10 +205,13 @@ def generate_report(report_dir, log_date, log_stats: List[Dict]):
     :param log_stats: Log statistics
     :return: None
     """
+    if not log_date or not log_stats:
+        return
     if not os.path.isdir(report_dir):
         os.makedirs(report_dir, exist_ok=True)
+    scrip_dir = pathlib.Path(os.path.dirname(os.path.relpath(__file__)))
     report_fname = report_dir / f"report-{log_date}.html.tmp"
-    shutil.copyfile("report-template.html", report_fname)
+    shutil.copyfile(scrip_dir / "report-template.html", report_fname)
     with open(report_fname, encoding="UTF-8") as file:
         data = file.read()
         data = data.replace("var table = $table_json;", f"var table = {log_stats!r};")
@@ -216,13 +223,15 @@ def generate_report(report_dir, log_date, log_stats: List[Dict]):
     logger.info(f"Generated report: {str(final_report_fname)!r}")
 
 
-def report_file_exists(report_dir: pathlib.Path, log_date=None):
+def report_file_exists(report_dir: pathlib.Path, log_date: str | None) -> bool:
     """
     Check if report file already exists
     :param report_dir: Path to folder with reports
     :param log_date: Log date
     :return: True if report already exists, Flase otherwise
     """
+    if not log_date or not report_dir.exists():
+        return False
     maybe_report_fname = report_dir / f"report-{log_date}.html"
     return maybe_report_fname.exists()
 
@@ -239,7 +248,10 @@ def main(default_config: Dict):
     global logger
     logger = configure_logger(updated_config.get("LOG_FILE", None))
     log_file, log_date = get_log_file_and_date(pathlib.Path(updated_config.get("LOG_DIR", None)))
-    if report_file_exists(pathlib.Path(updated_config.get("REPORT_DIR")), log_date):
+    if not log_date or not log_file.exists():
+        logger.error("The log dir or log file do not exist")
+        return
+    if report_file_exists(pathlib.Path(updated_config.get("REPORT_DIR", "not_found")), log_date):
         logger.info(f"Log file {str(log_file)!r} was already parsed. Nothing to do")
         return
     log_data = parse_logs(log_file)
