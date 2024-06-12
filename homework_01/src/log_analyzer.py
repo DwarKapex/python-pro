@@ -16,7 +16,7 @@ import pathlib
 import re
 import shutil
 from statistics import mean, median
-from typing import Dict, List, Tuple
+from typing import Dict, List, TextIO, Tuple
 
 import structlog
 
@@ -81,9 +81,9 @@ def update_config(default_config: Dict, config_path: pathlib.Path) -> Dict:
             config_update = json.load(fconfig)
             updated_config.update(config_update)
     except FileNotFoundError as e:
-        logger.error(f"Failed to load config file {str(config_path)!r}, exception: {str(e)}")
+        logger.error("Failed to load config file %s, exception: %s", str(config_path), str(e))
     except json.decoder.JSONDecodeError as e:
-        logger.error(f"Failed to decode config file {str(config_path)!r}, exception: {str(e)}")
+        logger.error("Failed to decode config file %s, exception: %s", str(config_path), str(e))
     return updated_config
 
 
@@ -103,7 +103,7 @@ def get_log_file_and_date(log_dir: pathlib.Path) -> Tuple[pathlib.Path, str]:
     if not parse_log_name:
         return (pathlib.Path("not_found"), "")
     logfile_path = log_dir / parse_log_name
-    logger.info(f"Found log file {str(logfile_path)!r} for parsing")
+    logger.info("Found log file %s for parsing", str(logfile_path))
     log_date = re.findall(r"\d+", parse_log_name)[0]
     if len(log_date) != 8:
         logger.warning("warning")
@@ -123,7 +123,7 @@ def parse_log_line(line: str = ""):
     if re_result:
         url = re_result.group(1).strip()
     else:
-        logger.error(f"Need to adjust search criteria for line {line!r}")
+        logger.error("Need to adjust search criteria for line %s", line)
 
     request_time = float(re.findall(r"\d+\.\d+", line.split(" ")[-1].strip())[0])
     return url, request_time
@@ -138,12 +138,17 @@ def parse_logs(log_file: os.PathLike[str]) -> Dict:
     # find the latest log file in log dir
     if not log_file:
         return {}
-    if pathlib.Path(log_file).suffix == ".gz":
-        with gzip.open(log_file, mode="rt") as f:
-            logfile_content = f.readlines()
-    else:
-        with open(log_file, encoding="UTF-8") as f:
-            logfile_content = f.readlines()
+
+    try:
+        # pylint: disable=consider-using-with
+        logfile_content: TextIO = (
+            gzip.open(log_file, mode="rt")
+            if pathlib.Path(log_file).suffix == ".gz"
+            else open(log_file, encoding="UTF-8")
+        )
+    except OSError:
+        logger.error("Cannot open/read file %s", str(log_file))
+        return {}
 
     data = {}
     lines_count = 0
@@ -220,7 +225,7 @@ def generate_report(report_dir, log_date, log_stats: List[Dict]) -> None:
 
     final_report_fname = report_fname.parent / report_fname.stem
     os.rename(report_fname, final_report_fname)
-    logger.info(f"Generated report: {str(final_report_fname)!r}")
+    logger.info("Generated report: %s", str(final_report_fname))
 
 
 def report_file_exists(report_dir: pathlib.Path, log_date: str | None) -> bool:
@@ -249,10 +254,12 @@ def main(default_config: Dict):
     logger = configure_logger(updated_config.get("LOG_FILE", None))
     log_file, log_date = get_log_file_and_date(pathlib.Path(updated_config.get("LOG_DIR", None)))
     if not log_date or not log_file.exists():
-        logger.error("The log dir or log file do not exist")
+        logger.error(
+            "The log dir '%s' does not exist or does not contain any log file", updated_config.get("LOG_DIR", None)
+        )
         return
     if report_file_exists(pathlib.Path(updated_config.get("REPORT_DIR", "not_found")), log_date):
-        logger.info(f"Log file {str(log_file)!r} was already parsed. Nothing to do")
+        logger.info("Log file %s was already parsed. Nothing to do", str(log_file))
         return
     log_data = parse_logs(log_file)
     log_stats = create_log_stats(log_data, updated_config["REPORT_SIZE"])
