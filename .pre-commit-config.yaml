@@ -50,6 +50,7 @@ repos:
         - --max-line-length=120
         - --ignore-imports=yes
         - -d duplicate-code
+        - -d C0111
 
 
 -   repo: https://github.com/asottile/pyupgrade
