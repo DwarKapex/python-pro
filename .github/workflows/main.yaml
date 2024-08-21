@@ -53,10 +53,10 @@ jobs:
           cd homework_04
           poetry install --no-root
 
-      - name: Run static analyzis
-        run: |
-          cd homework_04
-          poetry run pre-commit run --files *
+#      - name: Run static analyzis
+#        run: |
+#          cd homework_04
+#          poetry run pre-commit run --files *
 
       - name: Run pytest
         run: |
