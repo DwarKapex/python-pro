@@ -163,6 +163,8 @@ cython_debug/
 
 # OTUS materials
 materials
+# until completion
+homework_03
 
 # macOS stuff
 .DS_Store
