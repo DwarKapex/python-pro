@@ -255,7 +255,8 @@ def main(default_config: Dict):
     log_file, log_date = get_log_file_and_date(pathlib.Path(updated_config.get("LOG_DIR", None)))
     if not log_date or not log_file.exists():
         logger.error(
-            "The log dir '%s' does not exist or does not contain any log file", updated_config.get("LOG_DIR", None)
+            "The log dir '%s' does not exist or does not contain any log file",
+            updated_config.get("LOG_DIR", None),
         )
         return
     if report_file_exists(pathlib.Path(updated_config.get("REPORT_DIR", "not_found")), log_date):
