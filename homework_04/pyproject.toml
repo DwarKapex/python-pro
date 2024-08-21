@@ -1,15 +1,12 @@
 [tool.poetry]
-name = "homework-01"
+name = "homework-04"
 version = "0.1.0"
 description = ""
 authors = ["Vladislav <vlad.kv.2002@gmail.com>"]
 readme = "README.md"
-packages = [
-    { include = "src"}
-]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.1"
@@ -56,7 +53,7 @@ use_parentheses = true
 line_length = 120
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 disallow_untyped_defs = true
 show_error_codes = true
 no_implicit_optional = true
