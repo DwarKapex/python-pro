@@ -41,7 +41,9 @@ def configure_logger(log_file: str = ""):
     if log_file:
         # pylint: disable=consider-using-with
         structlog.configure(
-            logger_factory=structlog.WriteLoggerFactory(file=pathlib.Path(log_file).open("wt", encoding="UTF-8")),
+            logger_factory=structlog.WriteLoggerFactory(
+                file=pathlib.Path(log_file).open("wt", encoding="UTF-8")
+            ),
         )
     return structlog.get_logger()
 
@@ -81,9 +83,13 @@ def update_config(default_config: Dict, config_path: pathlib.Path) -> Dict:
             config_update = json.load(fconfig)
             updated_config.update(config_update)
     except FileNotFoundError as e:
-        logger.error("Failed to load config file %s, exception: %s", str(config_path), str(e))
+        logger.error(
+            "Failed to load config file %s, exception: %s", str(config_path), str(e)
+        )
     except json.decoder.JSONDecodeError as e:
-        logger.error("Failed to decode config file %s, exception: %s", str(config_path), str(e))
+        logger.error(
+            "Failed to decode config file %s, exception: %s", str(config_path), str(e)
+        )
     return updated_config
 
 
@@ -164,7 +170,9 @@ def parse_logs(log_file: os.PathLike[str]) -> Dict:
             data[url].append(request_time)
 
     if failed_line_count > 0.5 * lines_count:
-        logger.error("Parser failed with more than 50% of log entities. Consider to update parse criteria")
+        logger.error(
+            "Parser failed with more than 50% of log entities. Consider to update parse criteria"
+        )
     return data
 
 
@@ -252,14 +260,18 @@ def main(default_config: Dict):
     # pylint: disable=global-statement
     global logger
     logger = configure_logger(updated_config.get("LOG_FILE", None))
-    log_file, log_date = get_log_file_and_date(pathlib.Path(updated_config.get("LOG_DIR", None)))
+    log_file, log_date = get_log_file_and_date(
+        pathlib.Path(updated_config.get("LOG_DIR", None))
+    )
     if not log_date or not log_file.exists():
         logger.error(
             "The log dir '%s' does not exist or does not contain any log file",
             updated_config.get("LOG_DIR", None),
         )
         return
-    if report_file_exists(pathlib.Path(updated_config.get("REPORT_DIR", "not_found")), log_date):
+    if report_file_exists(
+        pathlib.Path(updated_config.get("REPORT_DIR", "not_found")), log_date
+    ):
         logger.info("Log file %s was already parsed. Nothing to do", str(log_file))
         return
     log_data = parse_logs(log_file)
