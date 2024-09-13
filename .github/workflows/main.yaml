@@ -85,7 +85,7 @@ jobs:
 
       - name: Run static analyzis
         run: |
-          cd homework_04
+          cd homework_05
           poetry run pre-commit run --files *
 
       - name: Run pytest
