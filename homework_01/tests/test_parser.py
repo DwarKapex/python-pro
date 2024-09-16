@@ -33,7 +33,9 @@ def test_parse_log_line():
     )
 
     url, request_time = parse_log_line(log_line)
-    expected_url = "/api/v2/banner/22910512/statistic/?date_from=2017-06-30&date_to=2017-06-30"
+    expected_url = (
+        "/api/v2/banner/22910512/statistic/?date_from=2017-06-30&date_to=2017-06-30"
+    )
     expected_request_time = 0.116
     assert expected_url == url
     assert expected_request_time == request_time
