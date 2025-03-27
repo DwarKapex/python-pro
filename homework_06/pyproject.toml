@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "homework-06"
+version = "0.1.0"
+description = "Warehouse implementation"
+authors = ["Vladislav Kozlov <vlad.kv.2002@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+sqlalchemy = {extras = ["sqllite"], version = "^2.0.40"}
+pytest-mock = "^3.14.0"
+pylint = "^3.3.6"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
