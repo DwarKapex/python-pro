@@ -1,12 +1,10 @@
 # flake8: noqa
-from domain.models import Order, Product
-from infrastructure.orm import OrderORM, ProductORM
-from infrastructure.repositories import (
-    SqlAlchemyOrderRepository,
-    SqlAlchemyProductRepository,
-)
 from pytest_mock import MockerFixture
 from sqlalchemy.orm import Session
+
+from domain.models import Order, Product
+from infrastructure.orm import OrderORM, ProductORM
+from infrastructure.repositories import SqlAlchemyOrderRepository, SqlAlchemyProductRepository
 
 
 class TestRepository:
@@ -28,9 +26,7 @@ class TestRepository:
         mock_session = mocker.Mock(spec=Session)
         repo = SqlAlchemyProductRepository(mock_session)
         product_orm = ProductORM(id=1, name="Test Product", quantity=10, price=100)
-        mock_session.query.return_value.filter_by.return_value.one.return_value = (
-            product_orm
-        )
+        mock_session.query.return_value.filter_by.return_value.one.return_value = product_orm
 
         product = repo.get(1)
 
@@ -86,9 +82,7 @@ class TestRepository:
         product_orm1 = ProductORM(id=1, name="Product 1", quantity=10, price=100)
         product_orm2 = ProductORM(id=2, name="Product 2", quantity=20, price=200)
         order_orm = OrderORM(id=1, products=[product_orm1, product_orm2])
-        mock_session.query.return_value.filter_by.return_value.one.return_value = (
-            order_orm
-        )
+        mock_session.query.return_value.filter_by.return_value.one.return_value = order_orm
 
         order = repo.get(1)
 

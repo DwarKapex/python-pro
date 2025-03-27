@@ -24,15 +24,11 @@ def main():
 
     warehouse_service = WarehouseService(product_repo, order_repo)
     with uow:
-        new_product = warehouse_service.create_product(
-            name="test1", quantity=1, price=100
-        )
+        new_product = warehouse_service.create_product(name="test1", quantity=1, price=100)
         uow.commit()
         print(f"create product: {new_product}")
 
-        another_product = warehouse_service.create_product(
-            name="test2", quantity=10, price=42
-        )
+        another_product = warehouse_service.create_product(name="test2", quantity=10, price=42)
         uow.commit()
         print(f"create product: {another_product}")
 

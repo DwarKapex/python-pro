@@ -1,8 +1,9 @@
 from typing import List
 
+from sqlalchemy.orm import Session
+
 from domain.models import Order, Product
 from domain.repositories import OrderRepository, ProductRepository
-from sqlalchemy.orm import Session
 
 from .orm import OrderORM, ProductORM
 
@@ -12,9 +13,7 @@ class SqlAlchemyProductRepository(ProductRepository):
         self.session = session
 
     def add(self, product: Product):
-        product_orm = ProductORM(
-            name=product.name, quantity=product.quantity, price=product.price
-        )
+        product_orm = ProductORM(name=product.name, quantity=product.quantity, price=product.price)
         self.session.add(product_orm)
 
     def get(self, product_id: int) -> Product:
@@ -45,27 +44,18 @@ class SqlAlchemyOrderRepository(OrderRepository):
 
     def add(self, order: Order):
         order_orm = OrderORM()
-        order_orm.products = [
-            self.session.query(ProductORM).filter_by(id=p.id).one()
-            for p in order.products
-        ]
+        order_orm.products = [self.session.query(ProductORM).filter_by(id=p.id).one() for p in order.products]
         self.session.add(order_orm)
 
     def get(self, order_id: int) -> Order:
         order_orm = self.session.query(OrderORM).filter_by(id=order_id).one()
-        products = [
-            Product(id=p.id, name=p.name, quantity=p.quantity, price=p.price)
-            for p in order_orm.products
-        ]
+        products = [Product(id=p.id, name=p.name, quantity=p.quantity, price=p.price) for p in order_orm.products]
         return Order(id=int(order_orm.id), products=list(products))
 
     def list(self) -> List[Order]:
         orders_orm = self.session.query(OrderORM).all()
         orders = []
         for order_orm in orders_orm:
-            products = [
-                Product(id=p.id, name=p.name, quantity=p.quantity, price=p.price)
-                for p in order_orm.products
-            ]
+            products = [Product(id=p.id, name=p.name, quantity=p.quantity, price=p.price) for p in order_orm.products]
             orders.append(Order(id=int(order_orm.id), products=products))
         return orders
