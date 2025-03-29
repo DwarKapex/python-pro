@@ -10,14 +10,9 @@ DOCUMENT_ROOT = "./www"
 def handle_request(client_socket):
     request = ""
     try:
-        while True:
-            data = client_socket.recv(1024)
-            if not data:
-                break
-            request += data.decode()
+        # while True:
+        request = client_socket.recv(1024).decode()
         # 2. get headers
-        if not request:
-            return
         headers = request.split("\r\n")
         # 3. split headers to methods
         method, path, protocol = headers[0].split(" ")
