@@ -38,6 +38,7 @@ repos:
     -   id: mypy
         exclude: 'tests'
 
+
 # run local pylint in venv
 -   repo: local
     hooks:
@@ -51,7 +52,7 @@ repos:
         - --max-line-length=120
         - --ignore-imports=yes
         - -d duplicate-code
-        - -d C0111,W0621,R0913,R1705,W0201,W0613
+        - -d C0111,W0621,R0913,R1705,W0201,R0903,W0613
 
 
 -   repo: https://github.com/asottile/pyupgrade

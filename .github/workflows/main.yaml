@@ -92,3 +92,32 @@ jobs:
         run: |
           cd homework_05
           poetry run pytest tests
+
+  hw_06:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.12
+
+      - name: Run image # install poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.8.2
+
+      - name: Install dependencies # install all dependencies
+        run: |
+          cd homework_06
+          poetry install --no-root
+
+      - name: Run static analyzis
+        run: |
+          cd homework_06
+          poetry run pre-commit run --files *
+
+      - name: Run pytest
+        run: |
+          cd homework_06
+          poetry run pytest tests
