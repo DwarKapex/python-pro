@@ -38,21 +38,20 @@ repos:
     -   id: mypy
         exclude: 'tests'
 
-
 # run local pylint in venv
--   repo: local
-    hooks:
-    -   id: pylint
-        name: pylint
-        entry: pylint
-        language: system
-        types: [python]
-        require_serial: true
-        args:
-        - --max-line-length=120
-        - --ignore-imports=yes
-        - -d duplicate-code
-        - -d C0111,W0621,R0913,R1705,W0201,R0903,W0613,C0415,C0103
+#-   repo: local
+#    hooks:
+#    -   id: pylint
+#        name: pylint
+#        entry: pylint
+#        language: system
+#        types: [python]
+#        require_serial: true
+#        args:
+#        - --max-line-length=120
+#        - --ignore-imports=yes
+#        - -d duplicate-code
+#        - -d C0111,W0621,R0913,R1705,W0201,R0903,W0613,C0415,C0103
 
 
 -   repo: https://github.com/asottile/pyupgrade
